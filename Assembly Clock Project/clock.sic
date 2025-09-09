@@ -1,0 +1,107 @@
+CLOCK   START   7F01
+EIGHT   WORD    1048576
+TEN     WORD    10
+ZERO    WORD    0
+ZEROA   WORD    48
+SIXTY   WORD    60
+AMPM    WORD    12
+SECPH   BYTE    X'000E10'
+DEVNUM  WORD    64
+HOURS   RESW    1
+MINS    RESW    1
+INPUT   RESW    1
+OUTPUT  RESW    1 
+AP      WORD    65
+PFLAG   WORD    80
+                      
+ 
+FORMAT  LDA    TIMER                  
+        COMP   EIGHT        
+        JLT    TWELVE
+	SUB    EIGHT
+	STA    TIMER
+	J      CALC         
+
+TWELVE  LDA    PFLAG 
+	STA    EIGHT 
+
+CALC    LDA    TIMER
+	DIV    SECPH        
+        STA    HOURS        
+        MUL    SECPH
+	STA    OUTPUT        
+        LDA    TIMER
+	SUB    OUTPUT         
+        DIV    SIXTY       
+        STA    MINS
+	LDA    EIGHT
+	COMP   PFLAG 
+	JLT    DISP
+
+      
+TWETWO  LDA    HOURS
+	COMP   ZERO
+	JEQ    TWETHR             
+        COMP   AMPM          
+        JLT    DISP
+	LDA    PFLAG            
+        STA    AP
+	LDA    HOURS
+	COMP   AMPM
+	JGT    TWEFOU             
+	J      DISP
+
+TWETHR  LDA    AMPM     
+        STA    HOURS
+	J      DISP
+
+TWEFOU  SUB    AMPM          
+        STA    HOURS
+
+
+DISP    LDA    HOURS
+	STA    INPUT
+	JSUB   WRITE
+	LDA    MINS
+	STA    INPUT
+	JSUB   WRITE        
+	J      CHECK
+
+WRITE   COMP   TEN           
+        JLT    PZERO
+	      
+         
+TWODIG  DIV    TEN                  
+        ADD    ZEROA
+      	WD     DEVNUM
+	SUB    ZEROA
+	MUL    TEN
+	STA    OUTPUT      
+        LDA    INPUT                  
+        SUB    OUTPUT
+	ADD    ZEROA
+        WD     DEVNUM
+	RSUB        
+
+
+PZERO   LDA    ZEROA
+        WD     DEVNUM
+	LDA    INPUT
+	ADD    ZEROA
+        WD     DEVNUM
+	RSUB
+        
+CHECK  LDA    EIGHT
+       COMP   PFLAG
+       JEQ    DAY
+       J      HALT
+
+DAY    LDA    AP
+       WD     DEVNUM
+
+
+
+HALT   LDL    ZERO
+       RSUB
+TIMER  RESW   1
+DONE   END  CLOCK

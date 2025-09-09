@@ -1,0 +1,46 @@
+Documentation for CLOCK Display Program
+The CLOCK Display Program takes input from the timer value and converts this into hours and minutes, which are displayed in either 12-hour or 24-hour format. The program uses 252 bytes of memory (255 bytes with the last word of memory included), and starts at address 7F01. The program outputs the formatted time to device 64 and halts after displaying it.
+
+Step-by-Step Explanation
+
+The program starts by loading the value from the TIMER variable, which represents the number of seconds since midnight. The program checks if the time should be displayed in 12-hour or 24-hour format by comparing the value in TIMER with EIGHT(which holds the hexadecimal value for 100000 as a decimal value). If TIMER is greater than EIGHT, the program skips to converting the time into hours and minutes. If it’s not, EIGHT is used as a flag to let the program know the time is in 12-hour format.
+
+Time Calculation:
+
+24-Hour Format: The program calculates hours by dividing the TIMER by SECPH (3600 seconds in an hour). The result is stored in HOURS. Then, it calculates minutes by subtracting the total hours' value from TIMER, dividing the remainder by SIXTY (60 seconds in a minute), and storing the result in MINS.
+12-Hour Format:
+If the hour value exceeds 12, it sets the PM flag and adjusts the hours to fall between 1 and 12.
+Formatting the Time:
+
+The hours and minutes are then formatted differently depending on if they are two digits or one. If either value is less than 10, a leading zero is added.
+The program uses JSUB WRITE to output the formatted hours and minutes to device 64.
+Displaying AM/PM:
+
+If the time is in 12-hour format, the program checks AP to determine whether it is AM or PM. It then writes either "A" or "P" to the display based on the AP variable.
+Halting the Program:
+
+After displaying the time and potentially the AM/PM designation, the program halts using the RSUB instruction, which returns control to the monitor program.
+
+Major Functions:
+
+The WRITE subroutine formats the time, ensuring that hours and minutes are displayed as two-digit values. It also uses the WD instruction to send output to device 64.
+
+PZERO Subroutine:
+This subroutine handles writing a single digit with a leading zero for display purposes.
+
+DISP:
+
+The DISP function calls all the necessary functions needed to format and print out the TIME in HHMM.
+
+Memory for Variables:
+
+EIGHT, TEN, ZERO, ZEROA, SIXTY, AMPM, SECPH, DEVNUM, AP, PFLAG, HOURS, MINS, INPUT, OUTPUT: Declared as 1 WORD or 3 BYTES each (reserves 3 bytes each). 14 Total 42 BYTES
+TIMER also exists as a word variable but it is subjective as to if it's meory is a part of my program.
+
+The program uses 252 bytes for the main code, plus 3 bytes for the last word (TIMER), bringing the total to 255 bytes.
+
+
+
+
+Summary
+The program starts at address 7F01 and uses 252 bytes of memory (255 bytes including the last word of memory).
